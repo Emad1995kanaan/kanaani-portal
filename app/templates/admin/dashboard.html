@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Overview</h1><div class="actions"><a class="btn primary" href="/admin/resellers#new">+ New reseller</a></div></div>
+<div class="kpis">
+  <div class="kpi"><span>Resellers</span><b>{{ s.resellers }}</b><small>{{ s.active_resellers }} active</small></div>
+  <div class="kpi"><span>Customers</span><b>{{ s.customers }}</b><small>{{ s.expiring }} expiring in 7 days</small></div>
+  <div class="kpi good"><span>Active subscriptions</span><b>{{ s.active }}</b></div>
+  <div class="kpi warn"><span>Expired</span><b>{{ s.expired }}</b></div>
+  <div class="kpi blue"><span>Credits distributed</span><b>{{ s.allocated }}</b><small>{{ s.deducted }} taken back</small></div>
+  <div class="kpi"><span>Credits spent</span><b>{{ s.spent }}</b><small>{{ s.outstanding }} still in wallets</small></div>
+</div>
+<div class="grid2">
+  <div class="card"><h2>Credits spent · last 30 days</h2>{% set series = s.spend_series %}{% include "partials/_chart.html" %}</div>
+  <div class="card"><h2>Credits distributed · last 30 days</h2>{% set series = s.alloc_series %}{% include "partials/_chart.html" %}</div>
+</div>
+<div class="grid2">
+  <div class="card"><h2>Recent transactions</h2>{% set rows = recent %}{% set compact = true %}{% include "partials/_tx_table.html" %}<a class="more" href="/admin/transactions">All transactions →</a></div>
+  <div class="card"><h2>Top resellers</h2>
+    {% if s.top_resellers %}<ul class="bars">{% set mx = s.top_resellers[0].count or 1 %}{% for t in s.top_resellers %}<li><span>{{ t.name }}</span><i data-w="{{ (t.count * 100 / mx)|round|int }}"></i><b>{{ t.count }}</b></li>{% endfor %}</ul>
+    {% else %}<p class="muted">No customers yet.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

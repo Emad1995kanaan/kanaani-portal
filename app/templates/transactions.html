@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Transactions{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Transactions</h1>{% if admin_view %}<div class="actions"><a class="btn ghost" href="/admin/transactions.csv">Export CSV</a></div>{% endif %}</div>
+<form class="filters card" method="get">
+  <input name="q" value="{{ q }}" placeholder="Reference (TX-…)">
+  <select name="kind"><option value="">All types</option>{% for k in ['allocate', 'deduct', 'charge', 'refund'] %}<option value="{{ k }}" {{ 'selected' if kind == k }}>{{ k }}</option>{% endfor %}</select>
+  {% if admin_view %}<select name="reseller"><option value="0">All resellers</option>{% for r in resellers %}<option value="{{ r.id }}" {{ 'selected' if reseller == r.id }}>{{ r.username }}</option>{% endfor %}</select>{% endif %}
+  <button class="btn ghost">Apply</button>
+</form>
+<div class="card">{% set compact = false %}{% include "partials/_tx_table.html" %}{% include "partials/_pager.html" %}</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Financial reports</h1><div class="actions"><a class="btn ghost" href="/admin/transactions.csv">Export all transactions (CSV)</a></div></div>
+<div class="card"><h2>By month · last 12 months</h2>
+{% if monthly %}
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Month</th><th class="num">Distributed</th><th class="num">Deducted</th><th class="num">Spent on sales</th><th class="num">Refunded</th><th class="num">Net spent</th><th class="num">Sales</th></tr></thead>
+  <tbody>{% for m, r in monthly.items() %}
+    <tr><td>{{ m }}</td><td class="num pos">{{ r.allocate }}</td><td class="num neg">{{ -r.deduct }}</td><td class="num">{{ -r.charge }}</td><td class="num">{{ r.refund }}</td><td class="num"><b>{{ -(r.charge + r.refund) }}</b></td><td class="num">{{ r.sales }}</td></tr>
+  {% endfor %}</tbody></table></div>
+{% else %}<p class="muted">No transactions yet.</p>{% endif %}
+</div>
+<div class="card"><h2>By reseller · all time</h2>
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Reseller</th><th class="num">Received</th><th class="num">Spent (net)</th><th class="num">Sales</th><th class="num">Balance now</th></tr></thead>
+  <tbody>{% for rid, un, dn, bal, got, spent, n in per_reseller %}
+    <tr><td><a href="/admin/resellers/{{ rid }}">{{ dn or un }}</a></td><td class="num">{{ got }}</td><td class="num">{{ -spent }}</td><td class="num">{{ n }}</td><td class="num"><b>{{ bal }}</b></td></tr>
+  {% else %}<tr><td colspan="5" class="muted">No resellers yet.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

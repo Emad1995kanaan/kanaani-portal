@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ c.full_name }}{% endblock %}
+{% block content %}
+{% set dl = c.expires_at|days_left %}
+<div class="page-head"><div><a class="back" href="{{ base }}">← Customers</a><h1>{{ c.full_name }} {% include "partials/_state.html" %}</h1>
+  <p class="muted"><span class="mono">{{ c.reference }}</span>{% if admin_view %} · reseller <a href="/admin/resellers/{{ c.reseller_id }}">{{ c.reseller.username }}</a>{% endif %} · since {{ c.created_at|date }}</p></div></div>
+<div class="kpis">
+  <div class="kpi blue"><span>Expires</span><b class="sm">{{ c.expires_at|date }}</b><small>{{ (dl ~ ' days left') if dl is not none and dl >= 0 else 'expired' }}</small></div>
+  <div class="kpi"><span>Purchases</span><b>{{ c.subscriptions|length }}</b></div>
+</div>
+<div class="grid2">
+  <div class="card"><h2>Renew</h2>
+    <form method="post" action="{{ base }}/{{ c.id }}/renew" class="form-grid" data-confirm="Renew {{ c.full_name }}? Credits will be charged.">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="key" value="{{ new_key() }}">
+      <label class="full">Plan<select name="plan_id">{% for p in plans %}<option value="{{ p.id }}">{{ p.name }} — {{ p.credit_cost }} credit{{ 's' if p.credit_cost != 1 }}</option>{% endfor %}</select></label>
+      <div class="full"><button class="btn primary">Renew</button> <span class="muted small">Added after the current expiry (or from today if already expired).</span></div>
+    </form>
+    <hr>
+    <form method="post" action="{{ base }}/{{ c.id }}/status" data-confirm="{{ 'Suspend' if c.status == 'active' else 'Reactivate' }} {{ c.full_name }}?">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="status" value="{{ 'suspended' if c.status == 'active' else 'active' }}">
+      <button class="btn {{ 'danger' if c.status == 'active' else '' }}">{{ 'Suspend customer' if c.status == 'active' else 'Reactivate customer' }}</button></form>
+  </div>
+  <div class="card"><h2>Details</h2>
+    <form method="post" action="{{ base }}/{{ c.id }}/edit" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <label>Full name<input name="full_name" value="{{ c.full_name }}" required maxlength="120"></label>
+      <label>Phone<input name="phone" value="{{ c.phone }}" maxlength="40"></label>
+      <label class="full">Email<input name="email" type="email" value="{{ c.email }}" maxlength="160"></label>
+      <label class="full">Notes<textarea name="notes" rows="3" maxlength="2000">{{ c.notes }}</textarea></label>
+      <div class="full"><button class="btn">Save</button></div>
+    </form>
+  </div>
+</div>
+<div class="card"><h2>Subscription history</h2>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Date</th><th>Type</th><th>Plan</th><th>From</th><th>To</th><th class="num">Credits</th><th>Status</th></tr></thead>
+    <tbody>{% for s in c.subscriptions %}
+      <tr><td>{{ s.created_at|dt }}</td><td>{{ s.kind }}</td><td>{{ s.plan_name }}</td><td>{{ s.starts_at|date }}</td><td>{{ s.expires_at|date }}</td><td class="num">{{ s.credits }}</td><td><span class="badge {{ 'b-active' if s.status == 'active' else 'b-suspended' }}">{{ s.status }}</span></td></tr>
+    {% else %}<tr><td colspan="7" class="muted">No purchases.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="card"><h2>Transactions</h2>{% set rows = txs %}{% set compact = true %}{% include "partials/_tx_table.html" %}</div>
+{% endblock %}

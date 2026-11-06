@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Welcome, {{ user.display_name or user.username }}</h1><div class="actions"><a class="btn primary" href="/r/customers#new">+ New customer</a></div></div>
+<div class="kpis">
+  <div class="kpi blue big"><span>Credit balance</span><b>{{ s.balance }}</b><small>credits available</small></div>
+  <div class="kpi"><span>Customers</span><b>{{ s.customers }}</b></div>
+  <div class="kpi good"><span>Active</span><b>{{ s.active }}</b></div>
+  <div class="kpi warn"><span>Expiring in 7 days</span><b>{{ s.expiring }}</b></div>
+  <div class="kpi"><span>Expired</span><b>{{ s.expired }}</b></div>
+</div>
+<div class="card"><h2>Credits used · last 30 days</h2>{% set series = s.spend_series %}{% include "partials/_chart.html" %}</div>
+<div class="grid2">
+  <div class="card"><h2>Expiring soon</h2>{% set rows = expiring %}{% set base = '/r/customers' %}{% set admin_view = false %}{% include "partials/_customer_table.html" %}<a class="more" href="/r/customers?state=expiring">All expiring →</a></div>
+  <div class="card"><h2>Recent transactions</h2>{% set rows = recent %}{% set compact = true %}{% include "partials/_tx_table.html" %}<a class="more" href="/r/transactions">All →</a></div>
+</div>
+{% endblock %}

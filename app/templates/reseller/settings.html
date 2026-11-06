@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Account settings</h1></div>
+<div class="grid2">
+  <div class="card"><h2>Profile</h2>
+    <form method="post" action="/r/settings" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <label class="full">Username<input value="{{ user.username }}" disabled></label>
+      <label>Display name<input name="display_name" value="{{ user.display_name }}" maxlength="120"></label>
+      <label>Phone<input name="phone" value="{{ user.phone }}" maxlength="40"></label>
+      <label class="full">Email<input name="email" type="email" value="{{ user.email }}" maxlength="160"></label>
+      <div class="full"><button class="btn">Save</button></div>
+    </form>
+  </div>
+  <div class="card"><h2>Security</h2><p class="muted">Changing your password signs you out on every other device.</p><a class="btn" href="/account/password">Change password</a></div>
+</div>
+{% endblock %}

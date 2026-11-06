@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>{% block title %}{{ app_name }}{% endblock %} · {{ app_name }}</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/app.css?v={{ version }}">
+  <script src="/static/js/app.js?v={{ version }}" defer></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% if user and not (user.must_change_password and request.url.path == '/account/password') %}
+<div class="shell">
+  <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Menu">
+  <header class="topbar">
+    <label for="nav-toggle" class="burger" aria-label="Open menu"><span></span><span></span><span></span></label>
+    <a class="brand" href="/">{% include "partials/_logo.html" %}</a>
+    <div class="topbar-right">
+      {% if user.role == 'reseller' %}<a class="chip chip-credit" href="/r/transactions" title="Your credit balance"><span class="dot"></span>{{ user.balance }} credits</a>{% endif %}
+      <span class="who">{{ user.display_name or user.username }} <small>{{ user.role }}</small></span>
+    </div>
+  </header>
+  <nav class="sidebar">
+    <a class="brand side-brand" href="/">{% include "partials/_logo.html" %}</a>
+    {% set p = request.url.path %}
+    {% if user.role == 'admin' %}
+      <a href="/admin" class="{{ 'on' if p == '/admin' }}"><i class="i-grid"></i>Dashboard</a>
+      <a href="/admin/resellers" class="{{ 'on' if p.startswith('/admin/resellers') }}"><i class="i-users"></i>Resellers</a>
+      <a href="/admin/customers" class="{{ 'on' if p.startswith('/admin/customers') }}"><i class="i-user"></i>Customers</a>
+      <a href="/admin/transactions" class="{{ 'on' if p.startswith('/admin/transactions') }}"><i class="i-swap"></i>Transactions</a>
+      <a href="/admin/reports" class="{{ 'on' if p.startswith('/admin/reports') }}"><i class="i-chart"></i>Reports</a>
+      <a href="/admin/plans" class="{{ 'on' if p.startswith('/admin/plans') }}"><i class="i-tag"></i>Plans &amp; prices</a>
+      <a href="/admin/audit" class="{{ 'on' if p.startswith('/admin/audit') }}"><i class="i-shield"></i>Audit log</a>
+    {% else %}
+      <a href="/r" class="{{ 'on' if p == '/r' }}"><i class="i-grid"></i>Dashboard</a>
+      <a href="/r/customers" class="{{ 'on' if p.startswith('/r/customers') }}"><i class="i-user"></i>Customers</a>
+      <a href="/r/subscriptions" class="{{ 'on' if p.startswith('/r/subscriptions') }}"><i class="i-clock"></i>Subscriptions</a>
+      <a href="/r/transactions" class="{{ 'on' if p.startswith('/r/transactions') }}"><i class="i-swap"></i>Transactions</a>
+      <a href="/r/settings" class="{{ 'on' if p.startswith('/r/settings') }}"><i class="i-gear"></i>Settings</a>
+    {% endif %}
+    <div class="side-foot">
+      <a href="/account/password" class="{{ 'on' if p == '/account/password' }}"><i class="i-key"></i>Password</a>
+      <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf }}"><button class="linkish"><i class="i-out"></i>Sign out</button></form>
+      <small class="ver">v{{ version }}</small>
+    </div>
+  </nav>
+  <label for="nav-toggle" class="scrim"></label>
+  <main class="content">
+    {% include "partials/_notice.html" %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+  {% block bare %}{% endblock %}
+{% endif %}
+</body>
+</html>

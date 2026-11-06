@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Subscriptions{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Subscription history</h1></div>
+<div class="card">
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Date</th><th>Customer</th><th>Type</th><th>Plan</th><th>From</th><th>To</th><th class="num">Credits</th><th>Status</th></tr></thead>
+    <tbody>{% for s in rows %}
+      <tr><td>{{ s.created_at|dt }}</td><td><a href="/r/customers/{{ s.customer_id }}">{{ s.customer.full_name }}</a></td><td>{{ s.kind }}</td><td>{{ s.plan_name }}</td><td>{{ s.starts_at|date }}</td><td>{{ s.expires_at|date }}</td><td class="num">{{ s.credits }}</td>
+        <td><span class="badge {{ 'b-active' if s.status == 'active' else 'b-suspended' }}">{{ s.status }}</span></td></tr>
+    {% else %}<tr><td colspan="8" class="muted">No subscriptions yet.</td></tr>{% endfor %}</tbody></table></div>
+  {% include "partials/_pager.html" %}
+</div>
+{% endblock %}

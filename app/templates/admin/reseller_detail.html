@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ r.username }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><a class="back" href="/admin/resellers">← Resellers</a><h1>{{ r.display_name or r.username }} <span class="badge {{ 'b-active' if r.is_active else 'b-suspended' }}">{{ 'active' if r.is_active else 'suspended' }}</span></h1><p class="muted">@{{ r.username }} · joined {{ r.created_at|date }} · last sign-in {{ r.last_login_at|dt }}</p></div></div>
+<div class="kpis">
+  <div class="kpi blue"><span>Balance</span><b>{{ r.balance }}</b><small>credits</small></div>
+  <div class="kpi"><span>Customers</span><b>{{ ov.customers }}</b></div>
+  <div class="kpi good"><span>Active</span><b>{{ ov.active }}</b></div>
+  <div class="kpi warn"><span>Expiring 7 days</span><b>{{ ov.expiring }}</b></div>
+</div>
+<div class="grid2">
+  <div class="card"><h2>Credits</h2>
+    <form method="post" action="/admin/resellers/{{ r.id }}/credits" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="key" value="{{ new_key() }}">
+      <label>Action<select name="op"><option value="allocate">Add credits</option><option value="deduct">Deduct credits</option></select></label>
+      <label>Amount<input name="amount" type="number" min="1" required></label>
+      <label class="full">Note<input name="note" maxlength="200" placeholder="e.g. Payment received"></label>
+      <div class="full"><button class="btn primary">Apply</button></div>
+    </form>
+  </div>
+  <div class="card"><h2>Details</h2>
+    <form method="post" action="/admin/resellers/{{ r.id }}/edit" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <label>Display name<input name="display_name" value="{{ r.display_name }}" maxlength="120"></label>
+      <label>Email<input name="email" type="email" value="{{ r.email }}" maxlength="160"></label>
+      <label>Phone<input name="phone" value="{{ r.phone }}" maxlength="40"></label>
+      <div class="full"><button class="btn">Save</button></div>
+    </form>
+    <div class="split">
+      <form method="post" action="/admin/resellers/{{ r.id }}/status" data-confirm="{{ 'Suspend this reseller? They will be signed out.' if r.is_active else 'Activate this reseller?' }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="active" value="{{ '0' if r.is_active else '1' }}">
+        <button class="btn {{ 'danger' if r.is_active else 'primary' }}">{{ 'Suspend account' if r.is_active else 'Activate account' }}</button></form>
+      <form method="post" action="/admin/resellers/{{ r.id }}/password" class="inline-form" data-confirm="Set this temporary password? The reseller will be signed out.">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}"><input name="password" value="{{ suggested }}" class="mono" minlength="10" required aria-label="Temporary password">
+        <button class="btn ghost">Reset password</button></form>
+    </div>
+  </div>
+</div>
+<div class="card"><h2>Credits used · last 30 days</h2>{% set series = ov.spend_series %}{% include "partials/_chart.html" %}</div>
+<div class="grid2">
+  <div class="card"><h2>Recent transactions</h2>{% set rows = txs %}{% set compact = true %}{% include "partials/_tx_table.html" %}<a class="more" href="/admin/transactions?reseller={{ r.id }}">All →</a></div>
+  <div class="card"><h2>Activity</h2>
+    {% if activity %}<ul class="timeline">{% for a in activity %}<li><b>{{ a.action }}</b> <span class="muted">{{ a.created_at|dt }}</span>{% if a.target_type %} <small class="muted">{{ a.target_type }} #{{ a.target_id }}</small>{% endif %}</li>{% endfor %}</ul>
+    {% else %}<p class="muted">No activity yet.</p>{% endif %}
+  </div>
+</div>
+<div class="card"><h2>Customers ({{ total }})</h2>{% set rows = custs %}{% set base = '/admin/customers' %}{% include "partials/_customer_table.html" %}<a class="more" href="/admin/customers?reseller={{ r.id }}">All customers of this reseller →</a></div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% if rows %}
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Customer</th><th>Reference</th>{% if admin_view %}<th>Reseller</th>{% endif %}<th>State</th><th>Expires</th><th class="num">Days left</th></tr></thead>
+  <tbody>{% for c in rows %}{% set dl = c.expires_at|days_left %}
+    <tr><td><a href="{{ base }}/{{ c.id }}"><b>{{ c.full_name }}</b></a>{% if c.phone or c.email %}<br><small class="muted">{{ c.phone or c.email }}</small>{% endif %}</td>
+      <td class="mono">{{ c.reference }}</td>
+      {% if admin_view %}<td><a href="/admin/resellers/{{ c.reseller_id }}">{{ c.reseller.username }}</a></td>{% endif %}
+      <td>{% include "partials/_state.html" %}</td><td>{{ c.expires_at|date }}</td>
+      <td class="num">{{ dl if dl is not none and dl >= 0 else '—' }}</td></tr>
+  {% endfor %}</tbody></table></div>
+{% else %}<p class="muted">No customers found.</p>{% endif %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Plans{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Plans &amp; prices</h1></div>
+<p class="muted">The credit price is charged from the reseller's wallet each time a plan is sold or renewed. Changing a price affects new sales only.</p>
+<div class="plans">
+{% for p in plans %}
+  <form method="post" action="/admin/plans" class="card plan {{ '' if p.is_active else 'off' }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="plan_id" value="{{ p.id }}">
+    <label>Name<input name="name" value="{{ p.name }}" required maxlength="80"></label>
+    <div class="row2"><label>Months<input name="months" type="number" min="1" max="120" value="{{ p.months }}"></label>
+    <label>Credits<input name="credit_cost" type="number" min="0" value="{{ p.credit_cost }}"></label></div>
+    <div class="row2"><label>Order<input name="sort_order" type="number" value="{{ p.sort_order }}"></label>
+    <label class="check"><input type="checkbox" name="is_active" value="1" {{ 'checked' if p.is_active }}> Available</label></div>
+    <button class="btn">Save</button>
+  </form>
+{% endfor %}
+  <form method="post" action="/admin/plans" class="card plan new">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="plan_id" value="0">
+    <h3>New plan</h3>
+    <label>Name<input name="name" required maxlength="80" placeholder="e.g. 2 months"></label>
+    <div class="row2"><label>Months<input name="months" type="number" min="1" max="120" value="1"></label>
+    <label>Credits<input name="credit_cost" type="number" min="0" value="1"></label></div>
+    <input type="hidden" name="is_active" value="1"><input type="hidden" name="sort_order" value="99">
+    <button class="btn primary">Add plan</button>
+  </form>
+</div>
+{% endblock %}

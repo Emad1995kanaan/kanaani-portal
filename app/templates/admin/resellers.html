@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Resellers{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Resellers</h1>
+  <form class="search" method="get"><input name="q" value="{{ q }}" placeholder="Search username or name"><button class="btn ghost">Search</button></form>
+</div>
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Reseller</th><th>Status</th><th class="num">Balance</th><th class="num">Customers</th><th>Last sign-in</th><th>Created</th></tr></thead>
+    <tbody>{% for r, n in rows %}
+      <tr class="rowlink"><td><a href="/admin/resellers/{{ r.id }}"><b>{{ r.display_name or r.username }}</b><br><small class="muted">@{{ r.username }}</small></a></td>
+        <td><span class="badge {{ 'b-active' if r.is_active else 'b-suspended' }}">{{ 'active' if r.is_active else 'suspended' }}</span></td>
+        <td class="num">{{ r.balance }}</td><td class="num">{{ n }}</td><td>{{ r.last_login_at|dt }}</td><td>{{ r.created_at|date }}</td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<p class="muted">No resellers yet. Create the first one below.</p>{% endif %}
+</div>
+<div class="card" id="new">
+  <h2>New reseller</h2>
+  <form method="post" action="/admin/resellers" class="form-grid">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="key" value="{{ new_key() }}">
+    <label>Username<input name="username" required pattern="[A-Za-z0-9._\-]{3,64}" maxlength="64"></label>
+    <label>Display name<input name="display_name" maxlength="120"></label>
+    <label>Email<input name="email" type="email" maxlength="160"></label>
+    <label>Phone<input name="phone" maxlength="40"></label>
+    <label>Temporary password<input name="password" value="{{ suggested }}" required minlength="10" class="mono"><small class="muted">They must change it at first sign-in.</small></label>
+    <label>Opening credits<input name="credits_start" type="number" min="0" value="0"></label>
+    <div class="full"><button class="btn primary">Create reseller</button></div>
+  </form>
+</div>
+{% endblock %}

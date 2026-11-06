@@ -1,0 +1,20 @@
+services:
+  app:
+    build: .
+    env_file: .env
+    ports:
+      - "127.0.0.1:8000:8000"   # only reachable from this machine; put your reverse proxy in front
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  # Optional PostgreSQL. Uncomment, set DATABASE_URL in .env, and add psycopg to requirements.txt.
+  # db:
+  #   image: postgres:17-alpine
+  #   environment:
+  #     POSTGRES_DB: kanaani
+  #     POSTGRES_USER: kanaani
+  #     POSTGRES_PASSWORD: change-me
+  #   volumes:
+  #     - ./pgdata:/var/lib/postgresql/data
+  #   restart: unless-stopped

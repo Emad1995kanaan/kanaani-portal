@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body_class %}auth{% endblock %}
+{% block bare %}
+<div class="auth-wrap">
+  <div class="auth-card glass">
+    <div class="auth-logo">{% include "partials/_logo.html" %}</div>
+    <h1>Sign in</h1>
+    <p class="muted">Management portal</p>
+    {% if error %}<div class="notice bad" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/login" autocomplete="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <label>Username<input name="username" value="{{ username }}" autocomplete="username" required maxlength="64" autofocus></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required maxlength="256"></label>
+      <button class="btn primary block">Sign in</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

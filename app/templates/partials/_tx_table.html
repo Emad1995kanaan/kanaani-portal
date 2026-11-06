@@ -1,0 +1,19 @@
+{% if rows %}
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Ref</th><th>Date (UTC)</th><th>Type</th>{% if admin_view and not compact %}<th>Reseller</th>{% endif %}<th class="num">Credits</th><th class="num">Balance</th>{% if not compact %}<th>Customer</th><th>Note</th>{% endif %}{% if admin_view and not compact %}<th></th>{% endif %}</tr></thead>
+  <tbody>
+  {% for t in rows %}
+    <tr>
+      <td class="mono">{{ t.ref }}</td><td>{{ t.created_at|dt }}</td><td><span class="badge k-{{ t.kind }}">{{ t.kind }}</span></td>
+      {% if admin_view and not compact %}<td><a href="/admin/resellers/{{ t.reseller_id }}">{{ t.reseller.username }}</a></td>{% endif %}
+      <td class="num {{ 'pos' if t.amount > 0 else 'neg' }}">{{ t.amount|signed }}</td><td class="num">{{ t.balance_after }}</td>
+      {% if not compact %}<td>{% if t.customer %}<a href="{{ '/admin' if admin_view else '/r' }}/customers/{{ t.customer_id }}">{{ t.customer.reference }}</a>{% else %}—{% endif %}</td><td class="note">{{ t.note }}</td>{% endif %}
+      {% if admin_view and not compact %}<td>{% if t.kind == 'charge' and t.id not in refunded %}
+        <form method="post" action="/admin/transactions/{{ t.id }}/refund" class="inline" data-confirm="Refund {{ t.ref }}? {{ -t.amount }} credits go back to {{ t.reseller.username }} and the period is removed from the customer.">
+          <input type="hidden" name="csrf_token" value="{{ csrf }}"><button class="btn ghost sm">Refund</button></form>
+        {% elif t.id in refunded %}<span class="muted small">refunded</span>{% endif %}</td>{% endif %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="muted">No transactions yet.</p>{% endif %}

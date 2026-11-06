@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Customers</h1><div class="actions"><a class="btn primary" href="#new">+ New customer</a></div></div>
+<form class="filters card" method="get">
+  <input name="q" value="{{ q }}" placeholder="Search name, reference, phone or email">
+  <select name="state">
+    <option value="">All states</option>
+    {% for s in ['active', 'expiring', 'expired', 'suspended'] %}<option value="{{ s }}" {{ 'selected' if state == s }}>{{ s }}</option>{% endfor %}
+  </select>
+  {% if admin_view %}<select name="reseller"><option value="0">All resellers</option>{% for r in resellers %}<option value="{{ r.id }}" {{ 'selected' if reseller == r.id }}>{{ r.username }}</option>{% endfor %}</select>{% endif %}
+  <button class="btn ghost">Apply</button>
+</form>
+<div class="card">{% include "partials/_customer_table.html" %}{% include "partials/_pager.html" %}</div>
+<div class="card" id="new">
+  <h2>New customer</h2>
+  {% if not plans %}<p class="muted">No plans are available yet.</p>{% else %}
+  <form method="post" action="{{ base }}" class="form-grid">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="key" value="{{ new_key() }}">
+    {% if admin_view %}<label>Reseller<select name="reseller_id" required><option value="">Choose…</option>{% for r in resellers %}<option value="{{ r.id }}">{{ r.username }} ({{ r.balance }} credits)</option>{% endfor %}</select></label>{% endif %}
+    <label>Full name<input name="full_name" required minlength="2" maxlength="120"></label>
+    <label>Reference <small class="muted">(optional — generated if empty)</small><input name="reference" pattern="[A-Za-z0-9._\-]{3,64}" maxlength="64"></label>
+    <label>Phone<input name="phone" maxlength="40"></label>
+    <label>Email<input name="email" type="email" maxlength="160"></label>
+    <label>Plan<select name="plan_id" required>{% for p in plans %}<option value="{{ p.id }}">{{ p.name }} — {{ p.credit_cost }} credit{{ 's' if p.credit_cost != 1 }}</option>{% endfor %}</select></label>
+    <label class="full">Notes<textarea name="notes" rows="2" maxlength="2000"></textarea></label>
+    <div class="full"><button class="btn primary">Create &amp; charge</button>{% if user.role == 'reseller' %} <span class="muted small">Your balance: {{ user.balance }} credits</span>{% endif %}</div>
+  </form>{% endif %}
+</div>
+{% endblock %}

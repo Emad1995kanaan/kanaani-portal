@@ -1,0 +1,9 @@
+{% set pages = ((total + per_page - 1) // per_page) %}
+{% if pages > 1 %}
+<div class="pager">
+  {% set qs = request.query_params %}
+  {% if page_no > 1 %}<a class="btn ghost sm" href="?{% for k, v in qs.multi_items() if k != 'page_no' %}{{ k }}={{ v|urlencode }}&amp;{% endfor %}page_no={{ page_no - 1 }}">← Prev</a>{% endif %}
+  <span>Page {{ page_no }} of {{ pages }} · {{ total }} total</span>
+  {% if page_no < pages %}<a class="btn ghost sm" href="?{% for k, v in qs.multi_items() if k != 'page_no' %}{{ k }}={{ v|urlencode }}&amp;{% endfor %}page_no={{ page_no + 1 }}">Next →</a>{% endif %}
+</div>
+{% endif %}
