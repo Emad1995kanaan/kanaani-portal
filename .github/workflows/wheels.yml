@@ -1,5 +1,7 @@
 name: dev-wheels
 on: workflow_dispatch
+permissions:
+  contents: write
 jobs:
   wheels:
     runs-on: ubuntu-latest
@@ -7,6 +9,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.13" }
       - run: |
-          pip download -d wheels --python-version 3.13 --only-binary=:all: --platform manylinux2014_x86_64 --platform manylinux_2_17_x86_64 --platform any fastapi "sqlalchemy>=2" alembic argon2-cffi httpx "uvicorn[standard]" jinja2 python-multipart pytest psycopg[binary]
-      - uses: actions/upload-artifact@v4
-        with: { name: wheels, path: wheels }
+          pip download -d wheels --python-version 3.13 --only-binary=:all: --platform manylinux2014_x86_64 --platform manylinux_2_17_x86_64 --platform any fastapi "sqlalchemy>=2" alembic argon2-cffi httpx "uvicorn[standard]" jinja2 python-multipart pytest
+      - run: |
+          cd wheels && git init -q -b devwheels && git add . && git -c user.name=ci -c user.email=ci@local commit -qm wheels
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" devwheels
