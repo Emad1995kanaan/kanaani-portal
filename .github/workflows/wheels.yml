@@ -6,6 +6,7 @@ jobs:
     steps:
       - uses: actions/setup-python@v5
         with: { python-version: "3.13" }
-      - run: pip download -d wheels --python-version 3.13 --only-binary=:all: --platform manylinux2014_x86_64 --platform manylinux_2_17_x86_64 --platform any fastapi "sqlalchemy>=2" alembic argon2-cffi httpx "uvicorn[standard]" jinja2 python-multipart pytest psycopg[binary]
+      - run: |
+          pip download -d wheels --python-version 3.13 --only-binary=:all: --platform manylinux2014_x86_64 --platform manylinux_2_17_x86_64 --platform any fastapi "sqlalchemy>=2" alembic argon2-cffi httpx "uvicorn[standard]" jinja2 python-multipart pytest psycopg[binary]
       - uses: actions/upload-artifact@v4
         with: { name: wheels, path: wheels }
